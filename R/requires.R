@@ -1,0 +1,12 @@
+require(ggplot2)
+require(ggsci)
+require(reshape2)
+require(viridis)
+
+source("dynamics.R")
+source("orbits.R")
+source("passage_times.R")
+source("plots.R")
+source("rk4.tis.R")
+source("slope_field.R")
+source("solutions.R")
