@@ -3,8 +3,8 @@ solutions <- function(alpha1 = 0.3,
                       alpha2 = 0.2,
                       sigmas = seq(from=0.1, to=0.9, by=0.1),
                       d = 2,
-                      x0_1 = c(1.0, 0.5),
-                      x0_2 = c(0.5, 1.0),
+                      x0_1 = c(1.0, 0.0),
+                      x0_2 = c(1.0, 1.0),
                       h = 0.01,
                       iter = 10000) {
   out <- vector("list", length(sigmas))
