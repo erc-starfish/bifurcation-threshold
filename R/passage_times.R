@@ -27,11 +27,11 @@ passage_time <- function(p0,
 # relevant parameter value ranges.
 passage_time_sweep_afrikaans <- function(p0 = 1,
                                          q0 = c(0.1, 0.5, 0.9),
-                                         alpha1 = 5/6,
-                                         alpha2 = 5/6,
+                                         alpha1 = 0.01,
+                                         alpha2 = 0.01,
                                          sigma = c(0.2, 0.6),
-                                         d = seq(from=1, to=50, length.out=20),
-                                         lim = 10^-2) {
+                                         d = exp(seq(from=log(0.1), to=log(20), length.out=20)),
+                                         lim = 10^-3) {
   out <- expand.grid(q0=q0, sigma=sigma, d=d)
   out$passtime <- NA
 

@@ -39,7 +39,7 @@ plot_phasespace <- function(sols = sols,
 
   g <- g + geom_point(data=endmajor, inherit.aes=FALSE, aes(x=x1, y=x2), size=2.0, color="black", alpha=1.0)
 
-  g <- g + theme(legend.position="none") + xlab(expression("Probability of"~G[1]~"in L1 population ("*italic(p)*")")) + ylab(expression("Probability of"~G[1]~"in L2 population ("*italic(q)*")"))
+  g <- g + theme(legend.position="none") + xlab(expression("Probability of"~italic(G)[1]~"in L1 population ("*italic(p)*")")) + ylab(expression("Probability of"~italic(G)[1]~"in L2 population ("*italic(q)*")"))
 
   g <- g + theme(panel.spacing = unit(1.0, "lines"), strip.placement = "outside", strip.background=element_rect(fill="white", color="white"), strip.text=element_text(size=10), axis.text=element_text(color="black"), aspect.ratio=1, panel.grid.minor=element_blank(), panel.grid.major=element_blank())
 
@@ -73,6 +73,6 @@ plot_orbits <- function(data = orbs) {
 plot_passage_times <- function(data = pastim) {
   g <- ggplot(data, aes(x=d, y=passtime, color=factor(sigma))) + geom_path() + geom_point() + facet_wrap(.~q0, ncol=3, labeller = label_bquote(q[0]==.(q0))) + theme_bw() + ylab("Passage time (generations)") + xlab(expression("Relative L2-difficulty"~italic(d))) + scale_color_locuszoom(name="Proportion of L2 speakers: ", labels=expression(sigma==0.2, sigma==0.6))
   g <- g + theme(panel.spacing = unit(1.0, "lines"), strip.placement = "outside", strip.background=element_rect(fill="white", color="white"), legend.position="top", legend.text=element_text(size=11), strip.text=element_text(size=10), axis.text=element_text(color="black"), panel.grid.minor=element_blank())
-  g <- g + scale_y_log10() 
+  g <- g + scale_x_log10() + annotation_logticks(sides="b")
   g
 }
