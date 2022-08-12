@@ -1,49 +1,19 @@
 # Plot all figures for the paper. Output goes in the 'plots' folder.
 plot_all <- function(folder = "../plots") {
-  # phase space plot
-  pdf(paste0(folder, "/Figure1.pdf"), height=6.5, width=6.5)
-  print(plot_phasespace(sols))
-  dev.off()
-
   # orbits
-  pdf(paste0(folder, "/Figure2.pdf"), height=5.0, width=6.5)
+  cairo_pdf(paste0(folder, "/Figure1.pdf"), height=5.0, width=6.5)
   print(plot_orbits(orbs))
   dev.off()
 
+  # simulations
+  cairo_pdf(paste0(folder, "/Figure2.pdf"), height=8, width=7)
+  print(plot_simulations(sims))
+  dev.off()
+
   # passage times
-  pdf(paste0(folder, "/Figure3.pdf"), height=3.2, width=6.5)
+  cairo_pdf(paste0(folder, "/Figure3.pdf"), height=3.2, width=6.5)
   print(plot_passage_times(pastim))
   dev.off()
-}
-
-
-# Plot phase space plot.
-plot_phasespace <- function(sols = sols,
-                            sigmas = seq(from=0.1, to=0.9, by=0.1),
-                            alpha1 = 0.3,
-                            alpha2 = 0.2,
-                            d = 2) {
-  sfmajor <- NULL
-
-  for (sigma in sigmas) {
-  sf <- slope_field(FUN=derivative, alpha1=alpha1, alpha2=alpha2, sigma=sigma, d=2, len=0.05, resolution=10, normalize=TRUE)
-  sf$sigma <- sigma
-  sfmajor <- rbind(sfmajor, sf)
-  }
-  
-  g <- ggplot(sfmajor, aes(x=x1, y=x2, xend=x1end, yend=x2end)) + geom_segment(arrow=arrow(angle=30, length=unit(0.1, "cm")), alpha=0.3, lwd=0.5) + theme_bw() + facet_wrap(.~sigma, labeller=label_bquote(sigma==.(sigma)))
-  g <- g + geom_path(data=sols, inherit.aes=FALSE, aes(x=x1, y=x2, group=traj, color=factor(traj)), lwd=1.0, alpha=0.7) + scale_color_locuszoom()
-
-  endmajor <- sols[sols$t == max(sols$t), ]
-  endmajor <- endmajor[endmajor$traj==1, ]
-
-  g <- g + geom_point(data=endmajor, inherit.aes=FALSE, aes(x=x1, y=x2), size=2.0, color="black", alpha=1.0)
-
-  g <- g + theme(legend.position="none") + xlab(expression("Probability of"~italic(G)[1]~"in L1 population ("*italic(p)*")")) + ylab(expression("Probability of"~italic(G)[1]~"in L2 population ("*italic(q)*")"))
-
-  g <- g + theme(panel.spacing = unit(1.0, "lines"), strip.placement = "outside", strip.background=element_rect(fill="white", color="white"), strip.text=element_text(size=10), axis.text=element_text(color="black"), aspect.ratio=1, panel.grid.minor=element_blank(), panel.grid.major=element_blank())
-
-  g
 }
 
 
@@ -75,4 +45,45 @@ plot_passage_times <- function(data = pastim) {
   g <- g + theme(panel.spacing = unit(1.0, "lines"), strip.placement = "outside", strip.background=element_rect(fill="white", color="white"), legend.position="top", legend.text=element_text(size=11), strip.text=element_text(size=10), axis.text=element_text(color="black"), panel.grid.minor=element_blank())
   g <- g + scale_x_log10() + annotation_logticks(sides="b")
   g
+}
+
+
+# Plot simulation outcomes.
+plot_simulations <- function(data = sims) {
+  sg <- data$sg
+  ig <- data$ig
+
+  # theme
+  mytheme <- theme_bw() + theme(axis.text=element_text(color="black"), strip.background=element_blank(), strip.text=element_text(size=12), legend.background=element_rect(colour = 'grey60', fill = 'white', size=0.3, linetype='solid'))
+
+
+  # labeller function
+  label_parseall <- function(variable, value) {
+    plyr::llply(value, function(x) parse(text = paste(variable, x, sep = "==")))
+  }
+
+
+  # inter-generational plot
+  ig$Population <- factor(ig$d, labels=c("L1", "L2"))
+  ig <- ig[ig$generation <= 15, ]
+  plot_ig <- ggplot(ig, aes(x=factor(generation), fill=Population, color=Population, y=p)) + geom_boxplot(color="grey60", alpha=0.6, outlier.size=0.8, outlier.shape=NA) + facet_wrap(.~gamma, ncol=1, labeller=label_parseall) + ggtitle("B") + mytheme + xlab("Generation") + ylab(expression("Probability of"~italic(G)[1]*" ("*italic(p)*", "*italic(q)*")"))
+
+  prediction <- iterate(x0=c(0.99, 0.99), iter=20, alpha1=0.25, alpha2=0.2, sigma=0.5, d=2)
+  prediction <- melt(prediction, id.vars="t")
+  names(prediction) <- c("generation", "Population", "p")
+  prediction$Population <- factor(prediction$Population, labels=c("L1", "L2"))
+  prediction <- prediction[prediction$generation > 0, ]
+  prediction <- prediction[prediction$generation <= 15, ]
+
+  plot_ig <- plot_ig + geom_point(data=prediction, size=2.0, alpha=0.8, aes(x=generation, y=p, color=Population)) + geom_path(data=prediction, size=0.7, alpha=0.8, aes(x=generation, y=p, color=Population, group=Population)) + scale_color_nejm(guide = guide_legend(title.position = "top")) + theme(legend.position=c(0.78, 0.947), panel.grid.minor=element_blank(), legend.direction="horizontal", axis.text.x=element_text(angle=60, hjust=1), panel.grid.major.x=element_blank())
+
+
+  # one generation plot
+  sg <- sg[sg$time <= 10001, ]
+  sg$Population <- factor(sg$d, labels=c("L1", "L2"))
+  plot_sg <- ggplot(sg[sg$time %% 100 == 1, ], aes(x=time, group=ID, color=Population, y=p)) + geom_path(alpha=0.7) + facet_wrap(.~gamma, ncol=1, labeller=label_parseall) + mytheme + scale_color_nejm(guide = guide_legend(title.position = "top")) + xlab("Learning iteration") + ylab(expression("Probability of"~italic(G)[1]*" ("*italic(p)*", "*italic(q)*")")) + ggtitle("A") + theme(legend.position=c(0.78, 0.947), panel.grid.minor=element_blank(), legend.direction="horizontal")
+
+
+  # combine them and out
+  grid.arrange(plot_sg, plot_ig, ncol=2)
 }
