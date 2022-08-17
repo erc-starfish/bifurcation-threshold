@@ -2,7 +2,7 @@
 
 This repository contains code that was used to carry out the simulations and plot the figures in the following publication:
 
-> Kauhanen, Henri (in prep) A bifurcation threshold for contact-induced language change. Ms., University of Konstanz.
+> Kauhanen, Henri. A bifurcation threshold for contact-induced language change. [https://arxiv.org/abs/2111.12061]
 
 Tested using R version 4.0.4.
 
