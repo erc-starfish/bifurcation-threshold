@@ -4,6 +4,8 @@ This repository contains code that was used to carry out the simulations and plo
 
 > Kauhanen, Henri (in prep) A bifurcation threshold for contact-induced language change. Ms., University of Konstanz.
 
+Tested using R version 4.0.4.
+
 
 ## Instructions
 
@@ -21,7 +23,7 @@ plot_all()
 
 The first line loads all required packages and scripts. The following R packages are needed: ggplot2, ggsci, gridExtra, plyr, reshape2, viridis. Please install these first if not already present on your system.
 
-Computing the orbits takes less than a minute. The simulations take a rather longer while: FIXME minutes on a fairly powerful computer (Ryzen 3950X with 128GB of RAM). Code is not parallelized so that exact replication is possible (the `simulations()` routine implicitly sets the PRNG seed).
+Computing the orbits takes less than a minute. The simulations take a rather longer while: about an hour on a fairly powerful computer (Ryzen 3950X with 128GB of RAM). Parallelization would result in speed gains, but code is not parallelized so that exact replication is possible (the `simulations()` routine implicitly sets the PRNG seed). For convenience, the simulated data can also be found in `data/sims.RData`.
 
 The resulting figures are outputted into the `plots` folder by default.
 
